@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafeID AI - ปิดบังข้อมูลอ่อนไหวและใส่ลายน้ำบัตรประชาชนอัตโนมัติ</title>
+  <title>SafeID AI - ระบบเลือกปิดบังข้อมูลด้านหน้าบัตรประชาชน</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -55,15 +55,15 @@
         <div>
           <div class="flex items-center space-x-2">
             <span class="font-bold text-lg text-white">SafeID <span class="text-brand-400">AI</span></span>
-            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">PDPA 100%</span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">PDPA Ready</span>
           </div>
-          <p class="text-xs text-slate-400 hidden sm:block">เซนเซอร์ข้อมูลอ่อนไหวและใส่ลายน้ำบัตรประชาชนไทย ปลอดภัยในเครื่อง</p>
+          <p class="text-xs text-slate-400 hidden sm:block">ระบบเลือกปิดบังข้อมูลและใส่ลายน้ำด้านหน้าบัตรประชาชน</p>
         </div>
       </div>
       <div class="flex items-center space-x-3">
         <span class="inline-flex items-center text-xs text-emerald-400 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
           <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
-          ประมวลผลบนเครื่อง ไม่ส่งรูปออกนอกเครื่อง
+          ประมวลผลบนเครื่อง ปลอดภัย 100%
         </span>
       </div>
     </div>
@@ -81,14 +81,14 @@
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center space-x-2">
               <span class="text-sm font-medium text-slate-200 flex items-center">
-                <i data-lucide="layout" class="w-4 h-4 mr-1.5 text-brand-400"></i> ตัวอย่างเอกสาร (Preview)
+                <i data-lucide="layout" class="w-4 h-4 mr-1.5 text-brand-400"></i> ตัวอย่างเอกสารหน้าบัตร (Preview)
               </span>
-              <span id="cardLoadedBadge" class="hidden text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">พร้อมส่งออก</span>
+              <span id="cardLoadedBadge" class="hidden text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">พร้อมใช้งาน</span>
             </div>
             <div class="flex items-center space-x-2">
-              <button id="addMaskBtn" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg flex items-center space-x-1 border border-slate-600 transition">
+              <button id="addCustomMaskBtn" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg flex items-center space-x-1 border border-slate-600 transition">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                <span>เพิ่มแถบปิดข้อมูล</span>
+                <span>เพิ่มแถบปิดเอง</span>
               </button>
               <button id="resetCardBtn" class="text-xs text-rose-400 hover:bg-rose-500/10 px-2 py-1.5 rounded-lg transition" title="ล้างรูปภาพ">
                 <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
@@ -99,13 +99,13 @@
           <!-- Canvas Container -->
           <div id="canvasViewport" class="relative rounded-xl overflow-hidden border border-slate-700 checkerboard min-h-[360px] flex items-center justify-center select-none group">
             
-            <!-- Upload Overlay (when empty) -->
+            <!-- Upload Overlay -->
             <div id="dropzonePrompt" class="text-center p-8 max-w-sm flex flex-col items-center cursor-pointer">
               <div class="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 mb-4 group-hover:scale-105 group-hover:border-brand-500/50 group-hover:text-brand-400 transition-all">
                 <i data-lucide="upload-cloud" class="w-8 h-8"></i>
               </div>
               <h3 class="font-medium text-slate-200 mb-1">ลากไฟล์รูปภาพบัตรประชาชนมาวางที่นี่</h3>
-              <p class="text-xs text-slate-400 mb-4">รองรับไฟล์ JPG, PNG หรือภาพถ่ายจากโทรศัพท์</p>
+              <p class="text-xs text-slate-400 mb-4">รองรับไฟล์ JPG, PNG หรือภาพถ่ายจากกล้องมือถือ</p>
               <div class="flex flex-wrap gap-2 justify-center">
                 <label for="fileInput" class="cursor-pointer bg-brand-500 hover:bg-brand-600 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-md shadow-brand-500/20 transition flex items-center space-x-1.5">
                   <i data-lucide="image" class="w-3.5 h-3.5"></i>
@@ -124,14 +124,14 @@
             
             <!-- Drag Hint -->
             <div id="dragHint" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur border border-slate-700 text-[11px] text-slate-300 px-3 py-1 rounded-full shadow pointer-events-none">
-              💡 คลิกและลากกล่องสีดำเพื่อเลื่อน หรือคลิกลากตัวหนังสือเพื่อย้ายตำแหน่ง
+              💡 คลิกและลากกล่องสีดำเพื่อเลื่อน หรือคลิกลากตัวหนังสือลายน้ำเพื่อย้ายตำแหน่ง
             </div>
           </div>
 
           <div class="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
             <span class="flex items-center">
               <i data-lucide="info" class="w-3.5 h-3.5 mr-1 text-slate-400"></i> 
-              ตำแหน่งแถบดำจะปิด: บาร์โค้ดแถบซ้าย และศาสนา (PDPA)
+              สามารถคลิกลากแถบสีดำบนบัตรเพื่อขยับตำแหน่งให้ตรงตามรูปถ่ายจริงได้
             </span>
             <span id="canvasDimensionsText" class="font-mono text-[11px]"></span>
           </div>
@@ -141,121 +141,145 @@
         <div class="bg-slate-800/40 border border-slate-800 rounded-xl p-3.5 flex items-start space-x-3 text-xs text-slate-400">
           <i data-lucide="lock" class="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5"></i>
           <div>
-            <span class="font-semibold text-slate-200">มั่นใจในความปลอดภัยสูงสุด:</span> 
-            ไฟล์รูปภาพจะถูกประมวลผลบนหน่วยความจำของบราวเซอร์ในเครื่องคุณเท่านั้น จะไม่มีการอัปโหลดหรือบันทึกข้อมูลใด ๆ ส่งไปยังเซิร์ฟเวอร์ภายนอก 100%
+            <span class="font-semibold text-slate-200">ประมวลผลปลอดภัยในเครื่อง (Client-side Only):</span> 
+            รูปภาพจะไม่ถูกส่งออกจากอุปกรณ์ของคุณ ข้อมูลส่วนบุคคลจะไม่รั่วไหลออกสู่อินเทอร์เน็ต
           </div>
         </div>
       </div>
 
-      <!-- Right: Controls & Watermark Configuration (5 Cols) -->
+      <!-- Right: Sensor Selection & Watermark Configuration (5 Cols) -->
       <div class="lg:col-span-5 space-y-4">
         
-        <!-- Controls Card -->
-        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-xl space-y-5">
+        <!-- Sensor Selection Card -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white flex items-center">
+              <i data-lucide="eye-off" class="w-4 h-4 mr-2 text-rose-400"></i> เลือกข้อมูลด้านหน้าที่ต้องการปิดบัง
+            </h2>
+            <div class="flex space-x-1.5 text-[11px]">
+              <button id="presetPdpaBtn" class="text-brand-400 hover:text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded border border-brand-500/20">แบบ PDPA</button>
+              <button id="presetHighBtn" class="text-slate-300 hover:text-white bg-slate-700/60 px-2 py-0.5 rounded">แบบรัดกุม</button>
+              <button id="presetClearBtn" class="text-slate-400 hover:text-slate-200 bg-slate-800 px-2 py-0.5 rounded">ล้าง</button>
+            </div>
+          </div>
+
+          <!-- Checklists -->
+          <div class="space-y-2.5" id="sensorChecklist">
+            <!-- Item 1: Religion (PDPA) -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_religion" data-key="religion" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500" checked>
+                <div>
+                  <div class="text-xs font-medium text-slate-200 flex items-center space-x-1.5">
+                    <span>ศาสนา (และกรุ๊ปเลือด)</span>
+                    <span class="text-[9px] bg-rose-500/20 text-rose-400 border border-rose-500/30 px-1 py-0.2 rounded font-medium">PDPA แนะนำ</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400">ข้อมูลอ่อนไหว ไม่ควรเปิดเผยหากไม่จำเป็นตามกฎหมาย</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- Item 2: Barcode Left -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_barcode" data-key="barcode" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500" checked>
+                <div>
+                  <div class="text-xs font-medium text-slate-200 flex items-center space-x-1.5">
+                    <span>บาร์โค้ดแนวตั้งแถบซ้าย</span>
+                    <span class="text-[9px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1 py-0.2 rounded font-medium">ควรปิด</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400">ป้องกันการนำเครื่องสแกนบาร์โค้ดมาอ่านดึงรหัสบัตรไป</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- Item 3: Production Code -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_prodCode" data-key="prodCode" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500" checked>
+                <div>
+                  <div class="text-xs font-medium text-slate-200">รหัสกำกับการผลิตบัตร (ใต้รูปถ่าย)</div>
+                  <p class="text-[11px] text-slate-400">รหัสควบคุมภายในของกรมการปกครอง ไม่จำเป็นต้องใช้ในเอกสารทั่วไป</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- Item 4: Mask Middle ID Digits -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_partialId" data-key="partialId" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500">
+                <div>
+                  <div class="text-xs font-medium text-slate-200 flex items-center space-x-1.5">
+                    <span>ปิดเลข 13 หลักตรงกลาง (X-XXXX-XXXXX-XX-X)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400">เปิดเฉพาะ 3 ตัวแรกและ 2 ตัวท้าย ป้องกันการนำเลขเต็มไปผูกข้อมูล</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- Item 5: Address -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_address" data-key="address" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500">
+                <div>
+                  <div class="text-xs font-medium text-slate-200">ที่อยู่ตามทะเบียนบ้าน</div>
+                  <p class="text-[11px] text-slate-400">ปิดบังตำแหน่งที่พักอาศัย สำหรับกรณีสมัครงานหรือทำธุรกรรมที่ไม่ต้องใช้ที่อยู่</p>
+                </div>
+              </div>
+            </label>
+
+            <!-- Item 6: Date of Birth -->
+            <label class="flex items-start justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
+              <div class="flex items-start space-x-3">
+                <input type="checkbox" id="mask_dob" data-key="dob" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500">
+                <div>
+                  <div class="text-xs font-medium text-slate-200">วัน/เดือน/ปีเกิด</div>
+                  <p class="text-[11px] text-slate-400">ป้องกันการนำวันเดือนปีเกิดไปใช้สุ่มรหัสผ่านหรือตอบคำถามความปลอดภัย</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Watermark Configuration Card -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-xl space-y-4">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center">
-              <i data-lucide="stamp" class="w-4 h-4 mr-2 text-brand-400"></i> ตั้งค่าข้อความลายน้ำขีดคร่อม
+              <i data-lucide="stamp" class="w-4 h-4 mr-2 text-brand-400"></i> ลายน้ำขีดคร่อมกำกับวัตถุประสงค์
             </h2>
-            <p class="text-xs text-slate-400 mt-1">ระบุวัตถุประสงค์เพื่อป้องกันการนำสำเนาไปใช้ผิดวัตถุประสงค์</p>
+            <p class="text-xs text-slate-400 mt-1">ป้องกันการนำสำเนาไปใช้ผิดวัตถุประสงค์</p>
           </div>
 
           <!-- Quick Presets -->
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-2">เลือกวัตถุประสงค์สำเร็จรูป (คลิกเดียว):</label>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <button type="button" class="preset-btn bg-slate-700/70 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-600/70 text-left transition flex items-center space-x-2" data-type="job">
-                <i data-lucide="briefcase" class="w-4 h-4 text-brand-400 shrink-0"></i>
-                <div class="truncate">
-                  <div class="font-medium">สมัครงาน</div>
-                  <div class="text-[10px] text-slate-400">ใช้สมัครงานตำแหน่ง...</div>
-                </div>
-              </button>
-              
-              <button type="button" class="preset-btn bg-slate-700/70 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-600/70 text-left transition flex items-center space-x-2" data-type="rent">
-                <i data-lucide="home" class="w-4 h-4 text-amber-400 shrink-0"></i>
-                <div class="truncate">
-                  <div class="font-medium">เช่าห้อง / คอนโด</div>
-                  <div class="text-[10px] text-slate-400">ใช้ทำสัญญาเช่า...</div>
-                </div>
-              </button>
-
-              <button type="button" class="preset-btn bg-slate-700/70 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-600/70 text-left transition flex items-center space-x-2" data-type="buy">
-                <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                <div class="truncate">
-                  <div class="font-medium">ซื้อขายสินค้า</div>
-                  <div class="text-[10px] text-slate-400">ใช้ยืนยันการซื้อขาย...</div>
-                </div>
-              </button>
-
-              <button type="button" class="preset-btn bg-slate-700/70 hover:bg-slate-700 text-slate-200 p-2.5 rounded-xl border border-slate-600/70 text-left transition flex items-center space-x-2" data-type="finance">
-                <i data-lucide="landmark" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-                <div class="truncate">
-                  <div class="font-medium">ธุรกรรมธนาคาร</div>
-                  <div class="text-[10px] text-slate-400">ใช้เปิดบัญชี/ติดต่อ...</div>
-                </div>
-              </button>
-            </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button type="button" class="preset-btn bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-xl border border-brand-500 text-left transition flex items-center space-x-2" data-type="job">
+              <i data-lucide="briefcase" class="w-4 h-4 text-brand-400 shrink-0"></i>
+              <span class="font-medium truncate">สมัครงาน</span>
+            </button>
+            <button type="button" class="preset-btn bg-slate-900/60 hover:bg-slate-700 text-slate-200 p-2 rounded-xl border border-slate-700 text-left transition flex items-center space-x-2" data-type="rent">
+              <i data-lucide="home" class="w-4 h-4 text-amber-400 shrink-0"></i>
+              <span class="font-medium truncate">เช่าที่พัก / คอนโด</span>
+            </button>
+            <button type="button" class="preset-btn bg-slate-900/60 hover:bg-slate-700 text-slate-200 p-2 rounded-xl border border-slate-700 text-left transition flex items-center space-x-2" data-type="buy">
+              <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <span class="font-medium truncate">ซื้อขายสินค้า</span>
+            </button>
+            <button type="button" class="preset-btn bg-slate-900/60 hover:bg-slate-700 text-slate-200 p-2 rounded-xl border border-slate-700 text-left transition flex items-center space-x-2" data-type="finance">
+              <i data-lucide="landmark" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+              <span class="font-medium truncate">ธุรกรรมธนาคาร</span>
+            </button>
           </div>
 
-          <!-- Custom Purpose Input -->
+          <!-- Destination Entity & Custom text -->
           <div class="space-y-3">
             <div>
-              <label for="destEntity" class="block text-xs font-medium text-slate-300 mb-1">ชื่อปลายทาง / ผู้รับเอกสาร:</label>
-              <input id="destEntity" type="text" placeholder="เช่น บริษัท เอบีซี จำกัด, หอพักสุขใจ" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+              <label for="destEntity" class="block text-xs font-medium text-slate-300 mb-1">ชื่อปลายทาง / บริษัทผู้รับเอกสาร:</label>
+              <input id="destEntity" type="text" placeholder="เช่น บริษัท นวัตกรรม จำกัด, หอพักสุขสบาย" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
             </div>
 
             <div>
-              <label for="watermarkText" class="block text-xs font-medium text-slate-300 mb-1">ข้อความลายน้ำที่จะแสดงบนบัตร:</label>
-              <textarea id="watermarkText" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition font-mono text-xs"></textarea>
-            </div>
-          </div>
-
-          <!-- Visual Settings Accordion / Options -->
-          <div class="pt-2 border-t border-slate-700/60 space-y-3">
-            <span class="text-xs font-medium text-slate-300 block">การปรับแต่งรูปลักษณ์ลายน้ำ:</span>
-            
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label class="text-slate-400 block mb-1">สีลายน้ำ:</label>
-                <div class="flex items-center space-x-2">
-                  <input id="watermarkColor" type="color" value="#0284c7" class="w-8 h-8 rounded border border-slate-600 bg-transparent cursor-pointer">
-                  <span id="colorHexText" class="font-mono text-[11px] text-slate-400">#0284c7</span>
-                </div>
-              </div>
-              
-              <div>
-                <label for="watermarkOpacity" class="text-slate-400 block mb-1">ความเข้ม / โปร่งใส (<span id="opacityVal">75%</span>):</label>
-                <input id="watermarkOpacity" type="range" min="30" max="100" value="75" class="w-full accent-brand-500 cursor-pointer">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs pt-1">
-              <div>
-                <label for="watermarkAngle" class="text-slate-400 block mb-1">มุมเอียง (<span id="angleVal">-18°</span>):</label>
-                <input id="watermarkAngle" type="range" min="-45" max="45" value="-18" class="w-full accent-brand-500 cursor-pointer">
-              </div>
-              <div>
-                <label for="watermarkFontSize" class="text-slate-400 block mb-1">ขนาดอักษร (<span id="fontSizeVal">Auto</span>):</label>
-                <input id="watermarkFontSize" type="range" min="14" max="42" value="24" class="w-full accent-brand-500 cursor-pointer">
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-1">
-              <label class="text-xs text-slate-300 flex items-center cursor-pointer select-none">
-                <input id="includeDateCheck" type="checkbox" checked class="w-4 h-4 rounded text-brand-500 bg-slate-900 border-slate-700 focus:ring-0 mr-2 accent-brand-500">
-                ประทับวันที่ปัจจุบันแบบ พ.ศ. กำกับเสมอ
-              </label>
-            </div>
-          </div>
-
-          <!-- Redaction Box Toggles -->
-          <div class="pt-2 border-t border-slate-700/60">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-medium text-slate-300">จุดเซนเซอร์อัตโนมัติ (ไทยสมาร์ตการ์ด):</span>
-              <button id="toggleAllMasksBtn" class="text-[11px] text-brand-400 hover:underline">รีเซ็ตพิกัดมาตรฐาน</button>
-            </div>
-            <div class="flex flex-wrap gap-1.5 text-xs" id="maskTagsContainer">
-              <!-- Dynamically populated tags -->
+              <label for="watermarkText" class="block text-xs font-medium text-slate-300 mb-1">ข้อความลายน้ำที่จะแสดง:</label>
+              <textarea id="watermarkText" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition font-mono"></textarea>
             </div>
           </div>
 
@@ -265,7 +289,6 @@
               <i data-lucide="download" class="w-5 h-5"></i>
               <span class="text-sm font-semibold">ดาวน์โหลดภาพสำเนาพร้อมใช้งาน</span>
             </button>
-            <p class="text-center text-[11px] text-slate-500 mt-2">ภาพที่บันทึกจะคงความละเอียดสูงตามไฟล์เดิม</p>
           </div>
 
         </div>
@@ -278,18 +301,21 @@
     // Initialize Lucide Icons
     lucide.createIcons();
 
-    // Default Thai National ID Card Sensitive Areas (relative coordinates)
-    const DEFAULT_MASKS = [
-      { id: 1, name: 'บาร์โค้ดแถบซ้าย', rx: 0.0, ry: 0.22, rw: 0.05, rh: 0.65 },
-      { id: 2, name: 'ศาสนา (PDPA)', rx: 0.35, ry: 0.54, rw: 0.16, rh: 0.07 }
-    ];
+    // Standard Template Coordinates for Thai National ID Front
+    const STANDARD_MASKS = {
+      religion: { key: 'religion', name: 'ศาสนา (PDPA)', rx: 0.35, ry: 0.54, rw: 0.16, rh: 0.07 },
+      barcode: { key: 'barcode', name: 'บาร์โค้ดแถบซ้าย', rx: 0.0, ry: 0.22, rw: 0.05, rh: 0.65 },
+      prodCode: { key: 'prodCode', name: 'รหัสผลิตบัตร', rx: 0.74, ry: 0.83, rw: 0.22, rh: 0.06 },
+      partialId: { key: 'partialId', name: 'เลข 13 หลักตรงกลาง', rx: 0.44, ry: 0.09, rw: 0.34, rh: 0.06 },
+      address: { key: 'address', name: 'ที่อยู่', rx: 0.13, ry: 0.66, rw: 0.40, rh: 0.12 },
+      dob: { key: 'dob', name: 'วัน/เดือน/ปีเกิด', rx: 0.35, ry: 0.40, rw: 0.28, rh: 0.11 }
+    };
 
     // App State
     const state = {
       image: null,
       imageWidth: 0,
       imageHeight: 0,
-      scale: 1,
       purposeType: 'job',
       destEntity: '',
       watermarkText: '',
@@ -305,7 +331,7 @@
       isDraggingMask: false,
       dragOffsetX: 0,
       dragOffsetY: 0,
-      masks: JSON.parse(JSON.stringify(DEFAULT_MASKS))
+      masks: []
     };
 
     // DOM Elements
@@ -319,24 +345,17 @@
     const destEntityInput = document.getElementById('destEntity');
     const watermarkTextInput = document.getElementById('watermarkText');
     const presetButtons = document.querySelectorAll('.preset-btn');
-    const watermarkColorInput = document.getElementById('watermarkColor');
-    const colorHexText = document.getElementById('colorHexText');
-    const watermarkOpacityInput = document.getElementById('watermarkOpacity');
-    const opacityVal = document.getElementById('opacityVal');
-    const watermarkAngleInput = document.getElementById('watermarkAngle');
-    const angleVal = document.getElementById('angleVal');
-    const watermarkFontSizeInput = document.getElementById('watermarkFontSize');
-    const fontSizeVal = document.getElementById('fontSizeVal');
-    const includeDateCheck = document.getElementById('includeDateCheck');
-    const addMaskBtn = document.getElementById('addMaskBtn');
+    const addCustomMaskBtn = document.getElementById('addCustomMaskBtn');
     const resetCardBtn = document.getElementById('resetCardBtn');
-    const maskTagsContainer = document.getElementById('maskTagsContainer');
-    const toggleAllMasksBtn = document.getElementById('toggleAllMasksBtn');
     const dragHint = document.getElementById('dragHint');
     const cardLoadedBadge = document.getElementById('cardLoadedBadge');
     const canvasDimensionsText = document.getElementById('canvasDimensionsText');
+    const checkboxes = document.querySelectorAll('#sensorChecklist input[type="checkbox"]');
+    const presetPdpaBtn = document.getElementById('presetPdpaBtn');
+    const presetHighBtn = document.getElementById('presetHighBtn');
+    const presetClearBtn = document.getElementById('presetClearBtn');
 
-    // Get Thai Buddhist Year formatted date (dd/mm/yyyy พ.ศ.)
+    // Thai Buddhist Year Date string
     function getThaiDateString() {
       const date = new Date();
       const d = String(date.getDate()).padStart(2, '0');
@@ -345,10 +364,29 @@
       return `${d}/${m}/${y}`;
     }
 
-    // Format Watermark text depending on type & entity
+    // Sync Active Masks with Selected Checkboxes
+    function syncMasksFromCheckboxes() {
+      const preservedCustom = state.masks.filter(m => m.isCustom);
+      const newMasks = [...preservedCustom];
+
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          const key = cb.dataset.key;
+          const template = STANDARD_MASKS[key];
+          if (template) {
+            newMasks.push({ ...template, id: key });
+          }
+        }
+      });
+
+      state.masks = newMasks;
+      render();
+    }
+
+    // Format Watermark Text
     function updateWatermarkTextTemplate() {
       const entity = state.destEntity.trim() || '.......................';
-      const dateStr = state.includeDate ? ` เมื่อวันที่ ${getThaiDateString()}` : '';
+      const dateStr = ` เมื่อวันที่ ${getThaiDateString()}`;
       
       let text = '';
       switch(state.purposeType) {
@@ -372,7 +410,7 @@
       render();
     }
 
-    // Set loaded image into canvas
+    // Setup Canvas with Image
     function setupImage(img) {
       state.image = img;
       state.imageWidth = img.width;
@@ -385,23 +423,18 @@
       dragHint.classList.remove('hidden');
       cardLoadedBadge.classList.remove('hidden');
       downloadBtn.disabled = false;
-
       canvasDimensionsText.textContent = `${img.width} × ${img.height} px`;
 
-      renderMaskTags();
-      render();
+      syncMasksFromCheckboxes();
     }
 
-    // Load Image file from user
+    // Load file from local input
     function handleFile(file) {
       if (!file || !file.type.startsWith('image/')) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
-        img.onload = function() {
-          setupImage(img);
-        };
+        img.onload = () => setupImage(img);
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -412,17 +445,12 @@
       const sampleImgUrl = 'ทำบัตรประชาชน-2021-ใช้เอกสารอะไรบ้าง.jpg';
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.onload = function() {
-        setupImage(img);
-      };
-      img.onerror = function() {
-        // Fallback drawing if file path is not directly accessible locally
-        drawFallbackSampleCard();
-      };
+      img.onload = () => setupImage(img);
+      img.onerror = () => drawFallbackSampleCard();
       img.src = sampleImgUrl;
     }
 
-    // Fallback Vector Card Generator
+    // Fallback Vector Mock Card
     function drawFallbackSampleCard() {
       const mockCanvas = document.createElement('canvas');
       mockCanvas.width = 460;
@@ -441,18 +469,15 @@
       mctx.font = '10px "Prompt"';
       mctx.fillText('เลขบัตรประจำตัวประชาชน X XXXX XXXXX XX X', 90, 50);
 
-      // Barcode
       mctx.fillStyle = '#0f172a';
       mctx.fillRect(0, 70, 20, 180);
 
-      // Chip
       mctx.fillStyle = '#fef08a';
       mctx.strokeStyle = '#854d0e';
       mctx.lineWidth = 1.5;
       mctx.strokeRect(65, 90, 70, 55);
       mctx.fillRect(65, 90, 70, 55);
 
-      // Text fields
       mctx.fillStyle = '#1e293b';
       mctx.font = 'bold 14px "Prompt"';
       mctx.fillText('ชื่อ  นามสกุล', 160, 80);
@@ -462,7 +487,6 @@
       mctx.fillText('เกิดวันที่  xx xx xxxx', 170, 145);
       mctx.fillText('ศาสนา  พุทธ', 170, 175);
 
-      // Photo frame
       mctx.fillStyle = '#f8fafc';
       mctx.fillRect(345, 135, 105, 125);
       mctx.fillStyle = '#64748b';
@@ -473,27 +497,6 @@
       const img = new Image();
       img.onload = () => setupImage(img);
       img.src = mockCanvas.toDataURL('image/jpeg', 0.95);
-    }
-
-    // Render Mask Tags list
-    function renderMaskTags() {
-      maskTagsContainer.innerHTML = '';
-      state.masks.forEach((m, idx) => {
-        const tag = document.createElement('div');
-        tag.className = 'flex items-center space-x-1 bg-slate-900 border border-slate-700 px-2 py-1 rounded text-[11px] text-slate-300';
-        tag.innerHTML = `
-          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-          <span>${m.name}</span>
-          <button type="button" class="text-slate-500 hover:text-rose-400 ml-1" data-del-idx="${idx}">&times;</button>
-        `;
-        tag.querySelector('button').addEventListener('click', (e) => {
-          e.stopPropagation();
-          state.masks.splice(idx, 1);
-          renderMaskTags();
-          render();
-        });
-        maskTagsContainer.appendChild(tag);
-      });
     }
 
     // Render Canvas
@@ -507,7 +510,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(state.image, 0, 0);
 
-      // 2. Draw Redaction / Masking Black Boxes
+      // 2. Draw Black Redaction Boxes
       ctx.save();
       ctx.fillStyle = '#000000';
       state.masks.forEach((mask, index) => {
@@ -518,7 +521,6 @@
 
         ctx.fillRect(x, y, w, h);
 
-        // Highlight active dragging box
         if (state.activeMaskIndex === index) {
           ctx.strokeStyle = '#38bdf8';
           ctx.lineWidth = Math.max(3, state.imageWidth * 0.004);
@@ -534,7 +536,6 @@
         ctx.translate(state.watermarkX, state.watermarkY);
         ctx.rotate((state.angle * Math.PI) / 180);
 
-        // Dynamic font size relative to image width
         const baseFontSize = (state.fontSize / 800) * state.imageWidth;
         ctx.font = `600 ${baseFontSize}px 'Prompt', sans-serif`;
         ctx.textAlign = 'center';
@@ -544,10 +545,8 @@
         ctx.fillStyle = state.color;
         ctx.strokeStyle = state.color;
 
-        // Draw primary text
         ctx.fillText(text, 0, 0);
 
-        // Calculate text metrics for dual bounding lines
         const textMetrics = ctx.measureText(text);
         const textWidth = textMetrics.width;
         const lineOffset = baseFontSize * 0.95;
@@ -556,13 +555,13 @@
 
         ctx.lineWidth = lineWidth;
 
-        // Top parallel line
+        // Top line
         ctx.beginPath();
         ctx.moveTo(-textWidth / 2 - lineExtension, -lineOffset);
         ctx.lineTo(textWidth / 2 + lineExtension, -lineOffset);
         ctx.stroke();
 
-        // Bottom parallel line
+        // Bottom line
         ctx.beginPath();
         ctx.moveTo(-textWidth / 2 - lineExtension, lineOffset);
         ctx.lineTo(textWidth / 2 + lineExtension, lineOffset);
@@ -572,15 +571,13 @@
       }
     }
 
-    // Event Handlers for Dragging on Canvas
+    // Drag and Drop Handling
     function getCanvasCoordinates(e) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
-
       const clientX = e.clientX || (e.touches && e.touches[0].clientX);
       const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
       return {
         x: (clientX - rect.left) * scaleX,
         y: (clientY - rect.top) * scaleY
@@ -599,7 +596,6 @@
       if (!state.image) return;
       const pos = getCanvasCoordinates(e);
 
-      // Check if clicking inside any mask box
       for (let i = state.masks.length - 1; i >= 0; i--) {
         if (isInsideMask(pos.x, pos.y, state.masks[i])) {
           state.activeMaskIndex = i;
@@ -611,7 +607,6 @@
         }
       }
 
-      // Check if clicking near watermark center
       const dist = Math.hypot(pos.x - state.watermarkX, pos.y - state.watermarkY);
       if (dist < state.imageWidth * 0.3) {
         state.isDraggingWatermark = true;
@@ -644,7 +639,7 @@
       state.isDraggingWatermark = false;
     }
 
-    // Attach Canvas interaction listeners
+    // Listeners
     canvas.addEventListener('mousedown', onPointerDown);
     window.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
@@ -653,40 +648,52 @@
     window.addEventListener('touchmove', onPointerMove, { passive: true });
     window.addEventListener('touchend', onPointerUp);
 
-    // File Input & Drag and Drop
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-    
-    canvasViewport.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      canvasViewport.classList.add('border-brand-400');
-    });
-
-    canvasViewport.addEventListener('dragleave', () => {
-      canvasViewport.classList.remove('border-brand-400');
-    });
-
-    canvasViewport.addEventListener('drop', (e) => {
-      e.preventDefault();
-      canvasViewport.classList.remove('border-brand-400');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    // Sample button event
     sampleCardBtn.addEventListener('click', loadSampleCard);
 
-    // Preset Buttons
+    // Preset Selection Buttons
+    presetPdpaBtn.addEventListener('click', () => {
+      document.getElementById('mask_religion').checked = true;
+      document.getElementById('mask_barcode').checked = true;
+      document.getElementById('mask_prodCode').checked = true;
+      document.getElementById('mask_partialId').checked = false;
+      document.getElementById('mask_address').checked = false;
+      document.getElementById('mask_dob').checked = false;
+      syncMasksFromCheckboxes();
+    });
+
+    presetHighBtn.addEventListener('click', () => {
+      document.getElementById('mask_religion').checked = true;
+      document.getElementById('mask_barcode').checked = true;
+      document.getElementById('mask_prodCode').checked = true;
+      document.getElementById('mask_partialId').checked = true;
+      document.getElementById('mask_address').checked = true;
+      document.getElementById('mask_dob').checked = true;
+      syncMasksFromCheckboxes();
+    });
+
+    presetClearBtn.addEventListener('click', () => {
+      checkboxes.forEach(cb => cb.checked = false);
+      syncMasksFromCheckboxes();
+    });
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', syncMasksFromCheckboxes);
+    });
+
     presetButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        presetButtons.forEach(b => b.classList.remove('border-brand-500', 'bg-slate-700'));
+        presetButtons.forEach(b => {
+          b.classList.remove('border-brand-500', 'bg-slate-700');
+          b.classList.add('border-slate-700', 'bg-slate-900/60');
+        });
         btn.classList.add('border-brand-500', 'bg-slate-700');
+        btn.classList.remove('border-slate-700', 'bg-slate-900/60');
         state.purposeType = btn.dataset.type;
         updateWatermarkTextTemplate();
       });
     });
 
-    // Inputs
     destEntityInput.addEventListener('input', (e) => {
       state.destEntity = e.target.value;
       updateWatermarkTextTemplate();
@@ -697,59 +704,21 @@
       render();
     });
 
-    watermarkColorInput.addEventListener('input', (e) => {
-      state.color = e.target.value;
-      colorHexText.textContent = e.target.value;
-      render();
-    });
-
-    watermarkOpacityInput.addEventListener('input', (e) => {
-      state.opacity = parseInt(e.target.value) / 100;
-      opacityVal.textContent = `${e.target.value}%`;
-      render();
-    });
-
-    watermarkAngleInput.addEventListener('input', (e) => {
-      state.angle = parseInt(e.target.value);
-      angleVal.textContent = `${e.target.value}°`;
-      render();
-    });
-
-    watermarkFontSizeInput.addEventListener('input', (e) => {
-      state.fontSize = parseInt(e.target.value);
-      fontSizeVal.textContent = `${e.target.value}px`;
-      render();
-    });
-
-    includeDateCheck.addEventListener('change', (e) => {
-      state.includeDate = e.target.checked;
-      updateWatermarkTextTemplate();
-    });
-
-    // Add Mask Button
-    addMaskBtn.addEventListener('click', () => {
+    addCustomMaskBtn.addEventListener('click', () => {
       if (!state.image) return;
       state.masks.push({
-        id: Date.now(),
-        name: `แถบปิดข้อมูล ${state.masks.length + 1}`,
+        id: 'custom_' + Date.now(),
+        name: 'แถบปิดเอง',
+        isCustom: true,
         rx: 0.35,
         ry: 0.45,
         rw: 0.25,
         rh: 0.08
       });
       state.activeMaskIndex = state.masks.length - 1;
-      renderMaskTags();
       render();
     });
 
-    // Reset All Masks
-    toggleAllMasksBtn.addEventListener('click', () => {
-      state.masks = JSON.parse(JSON.stringify(DEFAULT_MASKS));
-      renderMaskTags();
-      render();
-    });
-
-    // Reset Image
     resetCardBtn.addEventListener('click', () => {
       state.image = null;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -762,16 +731,14 @@
       canvasDimensionsText.textContent = '';
     });
 
-    // Download Watermarked Image
     downloadBtn.addEventListener('click', () => {
       if (!state.image) return;
-      
       const prevActive = state.activeMaskIndex;
       state.activeMaskIndex = -1;
       render();
 
       const link = document.createElement('a');
-      link.download = `safe-id-copy-${Date.now()}.jpg`;
+      link.download = `safe-id-front-${Date.now()}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95);
       link.click();
 
@@ -781,7 +748,6 @@
 
     // Initialize Default Watermark Text
     updateWatermarkTextTemplate();
-    renderMaskTags();
   </script>
 </body>
 </html>
