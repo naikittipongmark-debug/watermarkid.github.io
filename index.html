@@ -131,7 +131,7 @@
           <div class="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
             <span class="flex items-center">
               <i data-lucide="info" class="w-3.5 h-3.5 mr-1 text-slate-400"></i> 
-              สามารถคลิกลากแถบสีดำเพื่อขยับตำแหน่งให้ตรงกับรูปถ่ายจริงได้
+              สามารถคลิกลากแถบสีดำบนบัตรเพื่อขยับตำแหน่งให้ตรงตามรูปถ่ายจริงได้
             </span>
             <span id="canvasDimensionsText" class="font-mono text-[11px]"></span>
           </div>
@@ -204,16 +204,27 @@
               </div>
             </label>
 
-            <!-- 4. Mask Middle ID Digits -->
-            <label class="flex items-start justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
-              <div class="flex items-start space-x-2.5">
-                <input type="checkbox" id="mask_partialId" data-key="partialId" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500">
-                <div>
-                  <div class="text-xs font-medium text-slate-200">ปิดเลข 13 หลักตรงกลาง (X-XXXX-XXXXX-XX-X)</div>
-                  <p class="text-[11px] text-slate-400">เปิดเฉพาะตัวแรกและตัวท้าย ป้องกันการนำเลขเต็มไปผูกธุรกรรม</p>
+            <!-- 4. ID Card Number with digit options -->
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 transition space-y-2">
+              <label class="flex items-start justify-between cursor-pointer">
+                <div class="flex items-start space-x-2.5">
+                  <input type="checkbox" id="mask_idNumber" class="mt-0.5 w-4 h-4 rounded text-brand-500 bg-slate-800 border-slate-600 focus:ring-0 accent-brand-500">
+                  <div>
+                    <div class="text-xs font-medium text-slate-200">ปิดบังเลขประจำตัวประชาชน 13 หลัก</div>
+                    <p class="text-[11px] text-slate-400">เลือกจำนวนและตำแหน่งหลักที่ต้องการปิดได้</p>
+                  </div>
                 </div>
+              </label>
+
+              <!-- Sub-dropdown for ID Digits -->
+              <div id="idNumberOptions" class="hidden pl-6 pt-1">
+                <select id="idMaskMode" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500 transition">
+                  <option value="middle">ปิด 6 หลักตรงกลาง (เปิด 4 หลักหน้า + 3 หลักท้าย)</option>
+                  <option value="last9">ปิด 9 หลักท้าย (เปิดเฉพาะ 4 หลักหน้า)</option>
+                  <option value="all">ปิดทึบทั้งหมด 13 หลัก</option>
+                </select>
               </div>
-            </label>
+            </div>
 
             <!-- 5. Address -->
             <label class="flex items-start justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/70 hover:border-slate-600 cursor-pointer transition">
@@ -281,7 +292,7 @@
             </div>
           </div>
 
-          <!-- Watermark Appearance Controls (Font, Opacity, Angle, Size) -->
+          <!-- Watermark Appearance Controls -->
           <div class="pt-3 border-t border-slate-700/60 space-y-3">
             <span class="text-xs font-semibold text-slate-300 block flex items-center">
               <i data-lucide="sliders" class="w-3.5 h-3.5 mr-1.5 text-brand-400"></i> ปรับแต่งรูปลักษณ์ลายน้ำ
@@ -359,9 +370,15 @@
       religion: { key: 'religion', name: 'ศาสนา (PDPA)', rx: 0.35, ry: 0.54, rw: 0.16, rh: 0.07 },
       barcode: { key: 'barcode', name: 'บาร์โค้ดแถบซ้าย', rx: 0.0, ry: 0.22, rw: 0.05, rh: 0.65 },
       prodCode: { key: 'prodCode', name: 'รหัสผลิตบัตร', rx: 0.74, ry: 0.83, rw: 0.22, rh: 0.06 },
-      partialId: { key: 'partialId', name: 'เลข 13 หลักตรงกลาง', rx: 0.44, ry: 0.09, rw: 0.34, rh: 0.06 },
       address: { key: 'address', name: 'ที่อยู่', rx: 0.13, ry: 0.66, rw: 0.40, rh: 0.12 },
       dob: { key: 'dob', name: 'วัน/เดือน/ปีเกิด', rx: 0.35, ry: 0.40, rw: 0.28, rh: 0.11 }
+    };
+
+    // ID Number Masks depending on mode
+    const ID_COORDINATES = {
+      all: { rx: 0.46, ry: 0.09, rw: 0.42, rh: 0.055, name: 'เลขบัตร 13 หลัก (ปิดทั้งหมด)' },
+      middle: { rx: 0.59, ry: 0.09, rw: 0.21, rh: 0.055, name: 'เลขบัตร 13 หลัก (ปิด 6 หลักกลาง)' },
+      last9: { rx: 0.59, ry: 0.09, rw: 0.29, rh: 0.055, name: 'เลขบัตร 13 หลัก (ปิด 9 หลักท้าย)' }
     };
 
     // App State
@@ -404,7 +421,11 @@
     const dragHint = document.getElementById('dragHint');
     const cardLoadedBadge = document.getElementById('cardLoadedBadge');
     const canvasDimensionsText = document.getElementById('canvasDimensionsText');
-    const checkboxes = document.querySelectorAll('#sensorChecklist input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll('#sensorChecklist input[type="checkbox"]:not(#mask_idNumber)');
+    const maskIdNumberCheckbox = document.getElementById('mask_idNumber');
+    const idNumberOptions = document.getElementById('idNumberOptions');
+    const idMaskModeSelect = document.getElementById('idMaskMode');
+
     const presetPdpaBtn = document.getElementById('presetPdpaBtn');
     const presetHighBtn = document.getElementById('presetHighBtn');
     const presetClearBtn = document.getElementById('presetClearBtn');
@@ -430,11 +451,12 @@
       return `${d}/${m}/${y}`;
     }
 
-    // Sync Active Masks with Selected Checkboxes
+    // Sync Active Masks with Selected Checkboxes & ID Mode
     function syncMasksFromCheckboxes() {
       const preservedCustom = state.masks.filter(m => m.isCustom);
       const newMasks = [...preservedCustom];
 
+      // Add general checkbox masks
       checkboxes.forEach(cb => {
         if (cb.checked) {
           const key = cb.dataset.key;
@@ -444,6 +466,20 @@
           }
         }
       });
+
+      // Add ID Number mask if checked
+      if (maskIdNumberCheckbox.checked) {
+        const mode = idMaskModeSelect.value;
+        const config = ID_COORDINATES[mode] || ID_COORDINATES.middle;
+        newMasks.push({
+          id: 'id_mask',
+          name: config.name,
+          rx: config.rx,
+          ry: config.ry,
+          rw: config.rw,
+          rh: config.rh
+        });
+      }
 
       state.masks = newMasks;
       render();
@@ -606,7 +642,6 @@
         ctx.translate(state.watermarkX, state.watermarkY);
         ctx.rotate((state.angle * Math.PI) / 180);
 
-        // Dynamic font size relative to image width
         const baseFontSize = (state.fontSize / 800) * state.imageWidth;
         ctx.font = `600 ${baseFontSize}px ${state.fontFamily}`;
         ctx.textAlign = 'center';
@@ -722,14 +757,29 @@
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
     sampleCardBtn.addEventListener('click', loadSampleCard);
 
+    // ID Number Selection Toggles
+    maskIdNumberCheckbox.addEventListener('change', () => {
+      if (maskIdNumberCheckbox.checked) {
+        idNumberOptions.classList.remove('hidden');
+      } else {
+        idNumberOptions.classList.add('hidden');
+      }
+      syncMasksFromCheckboxes();
+    });
+
+    idMaskModeSelect.addEventListener('change', () => {
+      syncMasksFromCheckboxes();
+    });
+
     // Preset Selection Buttons
     presetPdpaBtn.addEventListener('click', () => {
       document.getElementById('mask_religion').checked = true;
       document.getElementById('mask_barcode').checked = true;
       document.getElementById('mask_prodCode').checked = true;
-      document.getElementById('mask_partialId').checked = false;
       document.getElementById('mask_address').checked = false;
       document.getElementById('mask_dob').checked = false;
+      maskIdNumberCheckbox.checked = false;
+      idNumberOptions.classList.add('hidden');
       syncMasksFromCheckboxes();
     });
 
@@ -737,14 +787,18 @@
       document.getElementById('mask_religion').checked = true;
       document.getElementById('mask_barcode').checked = true;
       document.getElementById('mask_prodCode').checked = true;
-      document.getElementById('mask_partialId').checked = true;
       document.getElementById('mask_address').checked = true;
       document.getElementById('mask_dob').checked = true;
+      maskIdNumberCheckbox.checked = true;
+      idNumberOptions.classList.remove('hidden');
+      idMaskModeSelect.value = 'middle';
       syncMasksFromCheckboxes();
     });
 
     presetClearBtn.addEventListener('click', () => {
       checkboxes.forEach(cb => cb.checked = false);
+      maskIdNumberCheckbox.checked = false;
+      idNumberOptions.classList.add('hidden');
       syncMasksFromCheckboxes();
     });
 
@@ -775,7 +829,7 @@
       render();
     });
 
-    // Watermark Visual Controls Event Handlers
+    // Watermark Controls Handlers
     watermarkFontFamilySelect.addEventListener('change', (e) => {
       state.fontFamily = e.target.value;
       render();
@@ -844,7 +898,7 @@
       render();
 
       const link = document.createElement('a');
-      link.download = `safe-id-copy-${Date.now()}.jpg`;
+      link.download = `safe-id-front-${Date.now()}.jpg`;
       link.href = canvas.toDataURL('image/jpeg', 0.95);
       link.click();
 
