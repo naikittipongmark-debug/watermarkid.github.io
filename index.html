@@ -131,7 +131,7 @@
           <div class="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
             <span class="flex items-center">
               <i data-lucide="info" class="w-3.5 h-3.5 mr-1 text-slate-400"></i> 
-              ตำแหน่งแถบดำจะปิด: บาร์โค้ดซ้าย, ศาสนา (PDPA), และรหัสผลิตบัตรขวาล่าง
+              ตำแหน่งแถบดำจะปิด: บาร์โค้ดแถบซ้าย และศาสนา (PDPA)
             </span>
             <span id="canvasDimensionsText" class="font-mono text-[11px]"></span>
           </div>
@@ -278,6 +278,12 @@
     // Initialize Lucide Icons
     lucide.createIcons();
 
+    // Default Thai National ID Card Sensitive Areas (relative coordinates)
+    const DEFAULT_MASKS = [
+      { id: 1, name: 'บาร์โค้ดแถบซ้าย', rx: 0.0, ry: 0.22, rw: 0.05, rh: 0.65 },
+      { id: 2, name: 'ศาสนา (PDPA)', rx: 0.35, ry: 0.54, rw: 0.16, rh: 0.07 }
+    ];
+
     // App State
     const state = {
       image: null,
@@ -299,12 +305,7 @@
       isDraggingMask: false,
       dragOffsetX: 0,
       dragOffsetY: 0,
-      // Default Thai National ID Card Sensitive Areas (relative coordinates)
-      masks: [
-        { id: 1, name: 'บาร์โค้ดแถบซ้าย', rx: 0.045, ry: 0.32, rw: 0.08, rh: 0.55 },
-        { id: 2, name: 'ศาสนา (PDPA)', rx: 0.38, ry: 0.59, rw: 0.18, rh: 0.055 },
-        { id: 3, name: 'รหัสผลิตบัตร (ขวาล่าง)', rx: 0.74, ry: 0.83, rw: 0.22, rh: 0.055 }
-      ]
+      masks: JSON.parse(JSON.stringify(DEFAULT_MASKS))
     };
 
     // DOM Elements
@@ -371,7 +372,27 @@
       render();
     }
 
-    // Load Image file
+    // Set loaded image into canvas
+    function setupImage(img) {
+      state.image = img;
+      state.imageWidth = img.width;
+      state.imageHeight = img.height;
+      state.watermarkX = img.width / 2;
+      state.watermarkY = img.height / 2;
+
+      dropzonePrompt.classList.add('hidden');
+      canvas.classList.remove('hidden');
+      dragHint.classList.remove('hidden');
+      cardLoadedBadge.classList.remove('hidden');
+      downloadBtn.disabled = false;
+
+      canvasDimensionsText.textContent = `${img.width} × ${img.height} px`;
+
+      renderMaskTags();
+      render();
+    }
+
+    // Load Image file from user
     function handleFile(file) {
       if (!file || !file.type.startsWith('image/')) return;
 
@@ -379,28 +400,79 @@
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          state.image = img;
-          state.imageWidth = img.width;
-          state.imageHeight = img.height;
-          
-          // Reset default watermark coordinate to center
-          state.watermarkX = img.width / 2;
-          state.watermarkY = img.height / 2;
-
-          dropzonePrompt.classList.add('hidden');
-          canvas.classList.remove('hidden');
-          dragHint.classList.remove('hidden');
-          cardLoadedBadge.classList.remove('hidden');
-          downloadBtn.disabled = false;
-
-          canvasDimensionsText.textContent = `${img.width} × ${img.height} px`;
-
-          renderMaskTags();
-          render();
+          setupImage(img);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    }
+
+    // Load Sample Card Image
+    function loadSampleCard() {
+      const sampleImgUrl = 'ทำบัตรประชาชน-2021-ใช้เอกสารอะไรบ้าง.jpg';
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() {
+        setupImage(img);
+      };
+      img.onerror = function() {
+        // Fallback drawing if file path is not directly accessible locally
+        drawFallbackSampleCard();
+      };
+      img.src = sampleImgUrl;
+    }
+
+    // Fallback Vector Card Generator
+    function drawFallbackSampleCard() {
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.width = 460;
+      mockCanvas.height = 290;
+      const mctx = mockCanvas.getContext('2d');
+
+      const grad = mctx.createLinearGradient(0, 0, 460, 290);
+      grad.addColorStop(0, '#c7e6fa');
+      grad.addColorStop(1, '#98d2f5');
+      mctx.fillStyle = grad;
+      mctx.fillRect(0, 0, 460, 290);
+
+      mctx.fillStyle = '#0f172a';
+      mctx.font = 'bold 15px "Prompt"';
+      mctx.fillText('บัตรประจำตัวประชาชน Thai National ID Card', 90, 30);
+      mctx.font = '10px "Prompt"';
+      mctx.fillText('เลขบัตรประจำตัวประชาชน X XXXX XXXXX XX X', 90, 50);
+
+      // Barcode
+      mctx.fillStyle = '#0f172a';
+      mctx.fillRect(0, 70, 20, 180);
+
+      // Chip
+      mctx.fillStyle = '#fef08a';
+      mctx.strokeStyle = '#854d0e';
+      mctx.lineWidth = 1.5;
+      mctx.strokeRect(65, 90, 70, 55);
+      mctx.fillRect(65, 90, 70, 55);
+
+      // Text fields
+      mctx.fillStyle = '#1e293b';
+      mctx.font = 'bold 14px "Prompt"';
+      mctx.fillText('ชื่อ  นามสกุล', 160, 80);
+      mctx.font = '11px "Prompt"';
+      mctx.fillText('Name  xxxxx xxx', 160, 105);
+      mctx.fillText('Lastname  xxxxx xxx', 160, 125);
+      mctx.fillText('เกิดวันที่  xx xx xxxx', 170, 145);
+      mctx.fillText('ศาสนา  พุทธ', 170, 175);
+
+      // Photo frame
+      mctx.fillStyle = '#f8fafc';
+      mctx.fillRect(345, 135, 105, 125);
+      mctx.fillStyle = '#64748b';
+      mctx.beginPath();
+      mctx.arc(397, 185, 25, 0, Math.PI * 2);
+      mctx.fill();
+
+      const img = new Image();
+      img.onload = () => setupImage(img);
+      img.src = mockCanvas.toDataURL('image/jpeg', 0.95);
     }
 
     // Render Mask Tags list
@@ -498,101 +570,6 @@
 
         ctx.restore();
       }
-    }
-
-    // Generate Mock Thai ID Card for Testing
-    function createMockThaiIDCard() {
-      const mockCanvas = document.createElement('canvas');
-      mockCanvas.width = 1000;
-      mockCanvas.height = 630;
-      const mctx = mockCanvas.getContext('2d');
-
-      // Card Background Gradient
-      const grad = mctx.createLinearGradient(0, 0, 1000, 630);
-      grad.addColorStop(0, '#e0f2fe');
-      grad.addColorStop(0.5, '#bae6fd');
-      grad.addColorStop(1, '#93c5fd');
-      mctx.fillStyle = grad;
-      mctx.fillRect(0, 0, 1000, 630);
-
-      // Card Header
-      mctx.fillStyle = '#0f172a';
-      mctx.font = 'bold 30px "Prompt"';
-      mctx.fillText('บัตรประจำตัวประชาชน Thai National ID Card', 220, 65);
-
-      mctx.font = 'bold 26px "Prompt"';
-      mctx.fillStyle = '#0369a1';
-      mctx.fillText('เลขประจำตัวประชาชน 1 1706 00162 23 8', 220, 120);
-
-      // Chip placeholder
-      mctx.fillStyle = '#d97706';
-      mctx.fillRect(60, 180, 100, 80);
-      mctx.fillStyle = '#fbbf24';
-      mctx.fillRect(65, 185, 90, 70);
-
-      // Left Barcode placeholder
-      mctx.fillStyle = '#1e293b';
-      for(let y = 300; y < 580; y += 8) {
-        mctx.fillRect(70, y, 70, (y % 16 === 0 ? 5 : 2));
-      }
-
-      // Name & Details
-      mctx.fillStyle = '#1e293b';
-      mctx.font = 'bold 28px "Prompt"';
-      mctx.fillText('ชื่อตัวและชื่อสกุล นาย กิตติพงษ์ พุ่มจำปา', 220, 190);
-      
-      mctx.font = '22px "Prompt"';
-      mctx.fillText('Name  Mr. Kittipong', 240, 230);
-      mctx.fillText('Last name  Pumjumpa', 240, 265);
-      
-      mctx.fillText('เกิดวันที่ 20 เม.ย. 2541', 240, 310);
-      mctx.fillText('Date of Birth 20 Apr 1998', 240, 345);
-
-      // Religion (Sensitive data)
-      mctx.fillStyle = '#0f172a';
-      mctx.font = 'bold 22px "Prompt"';
-      mctx.fillText('ศาสนา  พุทธ', 380, 385);
-
-      // Address
-      mctx.font = '20px "Prompt"';
-      mctx.fillText('ที่อยู่ 56 หมู่ที่ 2 ต.เนินขาม อ.เนินขาม จ.ชัยนาท', 180, 435);
-
-      // Photo Frame
-      mctx.fillStyle = '#cbd5e1';
-      mctx.fillRect(750, 250, 190, 240);
-      mctx.strokeStyle = '#94a3b8';
-      mctx.lineWidth = 2;
-      mctx.strokeRect(750, 250, 190, 240);
-      mctx.fillStyle = '#64748b';
-      mctx.font = '20px "Prompt"';
-      mctx.textAlign = 'center';
-      mctx.fillText('รูปถ่ายหน้าตรง', 845, 375);
-      mctx.textAlign = 'left';
-
-      // Card Production Number under Photo
-      mctx.fillStyle = '#0f172a';
-      mctx.font = 'bold 18px monospace';
-      mctx.fillText('1808-04-11300840', 760, 525);
-
-      const img = new Image();
-      img.onload = function() {
-        state.image = img;
-        state.imageWidth = img.width;
-        state.imageHeight = img.height;
-        state.watermarkX = img.width / 2;
-        state.watermarkY = img.height / 2;
-
-        dropzonePrompt.classList.add('hidden');
-        canvas.classList.remove('hidden');
-        dragHint.classList.remove('hidden');
-        cardLoadedBadge.classList.remove('hidden');
-        downloadBtn.disabled = false;
-        canvasDimensionsText.textContent = `${img.width} × ${img.height} px`;
-
-        renderMaskTags();
-        render();
-      };
-      img.src = mockCanvas.toDataURL('image/jpeg', 0.95);
     }
 
     // Event Handlers for Dragging on Canvas
@@ -696,8 +673,8 @@
       }
     });
 
-    // Sample button
-    sampleCardBtn.addEventListener('click', createMockThaiIDCard);
+    // Sample button event
+    sampleCardBtn.addEventListener('click', loadSampleCard);
 
     // Preset Buttons
     presetButtons.forEach(btn => {
@@ -765,13 +742,9 @@
       render();
     });
 
-    // Reset All Masks to Thai ID standard
+    // Reset All Masks
     toggleAllMasksBtn.addEventListener('click', () => {
-      state.masks = [
-        { id: 1, name: 'บาร์โค้ดแถบซ้าย', rx: 0.045, ry: 0.32, rw: 0.08, rh: 0.55 },
-        { id: 2, name: 'ศาสนา (PDPA)', rx: 0.38, ry: 0.59, rw: 0.18, rh: 0.055 },
-        { id: 3, name: 'รหัสผลิตบัตร (ขวาล่าง)', rx: 0.74, ry: 0.83, rw: 0.22, rh: 0.055 }
-      ];
+      state.masks = JSON.parse(JSON.stringify(DEFAULT_MASKS));
       renderMaskTags();
       render();
     });
@@ -793,7 +766,6 @@
     downloadBtn.addEventListener('click', () => {
       if (!state.image) return;
       
-      // Temporarily remove highlight bounding stroke before exporting
       const prevActive = state.activeMaskIndex;
       state.activeMaskIndex = -1;
       render();
