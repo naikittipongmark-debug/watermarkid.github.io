@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeID AI - ปิดบังข้อมูลอ่อนไหวและใส่ลายน้ำบัตรประชาชนอัตโนมัติ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              400: '#38bdf8',
+              500: '#0284c7',
+              600: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom canvas and UI styles */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .gradient-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+    }
+    canvas {
+      image-rendering: -webkit-optimize-contrast;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100 selection:bg-sky-500 selection:text-white">
+
+  <!-- Top Navigation -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/25">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-lg tracking-tight text-white">SafeID <span class="text-sky-400 font-mono text-sm">AI</span></span>
+            <span class="text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Client-Side 100%
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">ปิดบังข้อมูลอ่อนไหว & เซ็นกำกับสำเนาบัตรใน 5 วินาที</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <div class="hidden sm:flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+          <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>ภาพไม่ส่งขึ้นคลาวด์ ไม่บันทึกข้อมูล</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero introduction banner -->
+  <section class="gradient-glow border-b border-slate-800/60 py-4 px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2 text-slate-300">
+        <span class="bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-md font-semibold text-[11px]">ลดความเสี่ยงมิจฉาชีพ</span>
+        <span>ป้องกันการสวมรอยเปิดบัญชีม้า สมัครสินเชื่อ หรือนำสำเนาไปใช้ผิดวัตถุประสงค์</span>
+      </div>
+      <div class="text-slate-400 flex items-center gap-1">
+        <i data-lucide="scale" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span>เป็นไปตามแนวทาง พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- Left Column: Controls and Inputs -->
+      <div class="lg:col-span-5 space-y-5">
+        
+        <!-- Step 1: Upload / Sample selector -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">1</span>
+              เลือกรูปบัตรประชาชน
+            </h2>
+            <button onclick="loadSampleCard()" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 bg-sky-950/60 hover:bg-sky-900/60 px-2.5 py-1 rounded-lg border border-sky-800/50 transition-all">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              ลองด้วยบัตรจำลอง
+            </button>
+          </div>
+
+          <!-- Dropzone area -->
+          <div 
+            id="dropzone" 
+            onclick="document.getElementById('fileInput').click()" 
+            class="relative border-2 border-dashed border-slate-700 hover:border-sky-500/80 bg-slate-900/40 hover:bg-slate-900/80 rounded-xl p-5 text-center cursor-pointer transition-all duration-200 group"
+          >
+            <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <div class="w-12 h-12 rounded-full bg-slate-800 group-hover:bg-sky-500/20 group-hover:text-sky-400 text-slate-400 flex items-center justify-center transition-colors">
+                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-xs sm:text-sm font-medium text-slate-200">ลากไฟล์รูปมาวาง หรือ <span class="text-sky-400 underline">คลิกเลือกรูป</span></p>
+                <p class="text-[11px] text-slate-500 mt-0.5">รองรับไฟล์ JPG, PNG, WEBP (ประมวลผลในเครื่อง)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Purpose & Preset Quick Toggles -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">2</span>
+              วัตถุประสงค์ (คลิกเดียวจบ)
+            </h2>
+            <span class="text-[11px] text-slate-400 font-mono">Quick Preset</span>
+          </div>
+
+          <!-- Preset Pills -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <button onclick="setPreset('สมัครงาน')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="สมัครงาน">
+              <span>💼 สมัครงาน</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+            <button onclick="setPreset('เช่าห้อง/คอนโด')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="เช่าห้อง/คอนโด">
+              <span>🏠 เช่าห้อง/คอนโด</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+            <button onclick="setPreset('ติดต่อราชการ')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="ติดต่อราชการ">
+              <span>🏛️ ติดต่อราชการ</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+            <button onclick="setPreset('ซื้อขาย/โอนเงิน')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="ซื้อขาย/โอนเงิน">
+              <span>💳 ยืนยันซื้อขาย</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+            <button onclick="setPreset('เปิดบัญชี/ธุรกรรม')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="เปิดบัญชี/ธุรกรรม">
+              <span>🏦 เปิดบัญชี</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+            <button onclick="setPreset('อื่นๆ')" class="preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all" data-preset="อื่นๆ">
+              <span>✏️ กำหนดเอง</span>
+              <i data-lucide="check" class="w-3.5 h-3.5 text-sky-400 hidden"></i>
+            </button>
+          </div>
+
+          <!-- Target Entity / Company Input -->
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">ส่งให้ใคร / หน่วยงานปลายทาง</label>
+            <div class="relative">
+              <input 
+                type="text" 
+                id="targetEntity" 
+                value="บริษัท นวัตกรรมไทย จำกัด" 
+                oninput="updateWatermarkText()" 
+                placeholder="เช่น บริษัท เอสซีบี, เจ้าของหอพัก A, ผู้ขายสินค้า X" 
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors"
+              >
+              <button onclick="clearTargetEntity()" class="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Generated live watermark text box -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-medium text-slate-300">ข้อความลายน้ำที่จะกำกับลงภาพ</label>
+              <span class="text-[10px] text-sky-400">ลงวันที่อัตโนมัติ</span>
+            </div>
+            <textarea 
+              id="watermarkPreviewInput" 
+              rows="2" 
+              oninput="redrawCanvas()" 
+              class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500 resize-none font-sans"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Step 3: AI Auto-Masking & Protection Options -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 shadow-xl space-y-3.5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">3</span>
+              ระบบเซนเซอร์อัตโนมัติ (AI Masking)
+            </h2>
+            <span class="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Active</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- Toggle 1: Religion & Blood Type (PDPA) -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 cursor-pointer transition-colors">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-medium text-slate-200">เซนเซอร์ศาสนาและกรุ๊ปเลือด</div>
+                  <div class="text-[10px] text-slate-400">ข้อมูลอ่อนไหวตามกฎหมาย PDPA ห้ามเก็บโดยไม่จำเป็น</div>
+                </div>
+              </div>
+              <input type="checkbox" id="maskReligion" checked onchange="redrawCanvas()" class="w-4 h-4 text-sky-600 rounded bg-slate-800 border-slate-700 focus:ring-sky-500">
+            </label>
+
+            <!-- Toggle 2: Barcode & Laser Code Area -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 cursor-pointer transition-colors">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="scan-barcode" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-medium text-slate-200">เซนเซอร์บาร์โค้ด / ชิป / รหัสข้างเคียง</div>
+                  <div class="text-[10px] text-slate-400">ป้องกันเครื่องสแกนดูดข้อมูลอัตโนมัติ</div>
+                </div>
+              </div>
+              <input type="checkbox" id="maskBarcode" checked onchange="redrawCanvas()" class="w-4 h-4 text-sky-600 rounded bg-slate-800 border-slate-700 focus:ring-sky-500">
+            </label>
+
+            <!-- Toggle 3: Parallel Slash Lines (ขีดเส้นคู่ขนาน) -->
+            <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 cursor-pointer transition-colors">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="slash" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-medium text-slate-200">ขีดเส้นคู่ขนานพาดทับบัตร</div>
+                  <div class="text-[10px] text-slate-400">ธรรมเนียมเซ็นสำเนาถูกต้องที่ป้องกันการลบตัดต่อ</div>
+                </div>
+              </div>
+              <input type="checkbox" id="drawParallelLines" checked onchange="redrawCanvas()" class="w-4 h-4 text-sky-600 rounded bg-slate-800 border-slate-700 focus:ring-sky-500">
+            </label>
+          </div>
+
+          <!-- Color & Opacity sliders -->
+          <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">สีลายน้ำ</label>
+              <div class="flex items-center gap-2">
+                <input type="color" id="watermarkColor" value="#0369a1" onchange="redrawCanvas()" class="w-8 h-7 bg-transparent rounded cursor-pointer border border-slate-700">
+                <span class="text-[11px] text-slate-300 font-mono" id="watermarkColorLabel">น้ำเงินคลาสสิก</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">ความเข้มลายน้ำ (<span id="opacityLabel">75%</span>)</label>
+              <input type="range" id="watermarkOpacity" min="30" max="100" value="75" oninput="updateOpacityLabel(this.value); redrawCanvas()" class="w-full accent-sky-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Preview & Download -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <div class="glass-card rounded-2xl p-5 border border-slate-800 shadow-2xl flex flex-col">
+          
+          <!-- Canvas Top Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-800 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+                ภาพพรีวิวผลลัพธ์พร้อมดาวน์โหลด
+              </span>
+              <span id="aiScanBadge" class="bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded text-[10px] flex items-center gap-1">
+                <i data-lucide="cpu" class="w-3 h-3"></i> AI Detected
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="resetOverlayPosition()" class="text-slate-400 hover:text-slate-200 px-2 py-1 rounded bg-slate-800 hover:bg-slate-750 transition-colors text-[11px] flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="w-3 h-3"></i> รีเซ็ตตำแหน่ง
+              </button>
+            </div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="relative w-full overflow-hidden rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-center p-2 min-h-[380px] sm:min-h-[440px]">
+            <canvas id="idCanvas" class="max-w-full h-auto rounded-lg shadow-2xl cursor-grab active:cursor-grabbing border border-slate-700/40"></canvas>
+            
+            <!-- Loading overlay during AI simulated scan -->
+            <div id="scanningOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 hidden z-20">
+              <div class="w-12 h-12 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 animate-pulse">
+                <i data-lucide="scan" class="w-6 h-6"></i>
+              </div>
+              <p class="text-xs font-medium text-slate-200">AI กำลังวิเคราะห์บัตรและตรวจจับข้อมูลอ่อนไหว...</p>
+              <div class="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
+                <div class="w-full h-full bg-gradient-to-r from-sky-400 to-blue-500 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
+            <span class="flex items-center gap-1">
+              <i data-lucide="move" class="w-3 h-3 text-slate-500"></i> สามารถคลิกลากเพื่อย้ายตำแหน่งข้อความลายน้ำได้
+            </span>
+            <span id="canvasResolutionBadge" class="font-mono text-slate-500">1050 × 660 px</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-5 mt-4 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <button 
+                onclick="downloadMaskedImage('png')" 
+                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-sky-500/25 active:scale-95 transition-all text-sm"
+              >
+                <i data-lucide="download" class="w-4 h-4"></i>
+                ดาวน์โหลดรูปพร้อมส่ง (PNG)
+              </button>
+              <button 
+                onclick="downloadMaskedImage('jpeg')" 
+                class="hidden sm:inline-flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-4 py-2.5 rounded-xl text-xs transition-colors border border-slate-700"
+                title="ดาวน์โหลดขนาดไฟล์เล็กลงสำหรับแชตไลน์"
+              >
+                JPG
+              </button>
+            </div>
+
+            <div class="text-[11px] text-slate-400 flex items-center gap-1.5 self-center">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <span>รูปของคุณไม่ถูกอัปโหลดออกจากเครื่องแน่นอน 100%</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Informational Tips -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 text-xs">
+            <h3 class="font-semibold text-slate-200 flex items-center gap-1.5 mb-1">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-400"></i> ทำไมต้องเซนเซอร์ศาสนา?
+            </h3>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              พ.ร.บ. PDPA จัดให้ข้อมูล "ศาสนาและหมู่เลือด" เป็นข้อมูลส่วนบุคคลที่มีความอ่อนไหวเป็นพิเศษ หากผู้รับไม่ได้มีหน้าที่ประมวลผล การขีดฆ่าก่อนส่งจึงปลอดภัยที่สุด
+            </p>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 text-xs">
+            <h3 class="font-semibold text-slate-200 flex items-center gap-1.5 mb-1">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> ขีดเส้นคู่และใส่วันที่มีผลอย่างไร?
+            </h3>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              การขีดเส้นคู่พาดทับและระบุวัตถุประสงค์เจาะจง จะทำให้มิจฉาชีพไม่สามารถนำภาพไปตัดต่อเปิดบัญชีออนไลน์ หรือนำไปทำธุรกรรมประเภทอื่นได้
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-800 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 border border-slate-700 text-xs font-medium">
+      <i data-lucide="check" class="w-4 h-4 text-emerald-400" id="toastIcon"></i>
+      <span id="toastMessage">ดาวน์โหลดเรียบร้อยแล้ว</span>
+    </div>
+  </div>
+
+  <script>
+    // State variables
+    let currentImage = null;
+    let currentPreset = 'สมัครงาน';
+    let watermarkOffset = { x: 0, y: 0 };
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+
+    // AI Detected bounding boxes on ID card (relative coordinates 0.0 - 1.0)
+    // Modeled around Thai National Smart Card layout
+    const aiDetections = {
+      religion: { x: 0.70, y: 0.70, w: 0.24, h: 0.08, label: "ศาสนา/กรุ๊ปเลือด (PDPA)" },
+      barcode:  { x: 0.06, y: 0.78, w: 0.36, h: 0.15, label: "บาร์โค้ด & รหัสเครื่อง" },
+      laserId:  { x: 0.64, y: 0.18, w: 0.30, h: 0.07, label: "เลขควบคุมพิเศษ" }
+    };
+
+    const canvas = document.getElementById('idCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      updateWatermarkText();
+      loadSampleCard();
+      setupCanvasDragListeners();
+    });
+
+    // Preset configurations
+    function setPreset(presetName) {
+      currentPreset = presetName;
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-preset') === presetName;
+        const icon = btn.querySelector('[data-lucide="check"]');
+        if (isMatch) {
+          btn.className = "preset-btn text-xs py-2 px-3 rounded-xl border border-sky-500/80 bg-sky-500/15 text-sky-300 font-medium text-left flex items-center justify-between transition-all";
+          if (icon) icon.classList.remove('hidden');
+        } else {
+          btn.className = "preset-btn text-xs py-2 px-3 rounded-xl border border-slate-700 bg-slate-850 hover:bg-slate-800 text-slate-300 font-medium text-left flex items-center justify-between transition-all";
+          if (icon) icon.classList.add('hidden');
+        }
+      });
+
+      // Quick entity defaults
+      const entityInput = document.getElementById('targetEntity');
+      if (presetName === 'สมัครงาน' && (!entityInput.value || entityInput.value === 'บริษัท นวัตกรรมไทย จำกัด')) {
+        entityInput.value = 'บริษัท จัดหางานไทย จำกัด';
+      } else if (presetName === 'เช่าห้อง/คอนโด') {
+        entityInput.value = 'นิติบุคคลอาคารชุด เดอะพาร์ค';
+      } else if (presetName === 'ติดต่อราชการ') {
+        entityInput.value = 'สำนักงานเขต / ที่ว่าการอำเภอ';
+      } else if (presetName === 'ซื้อขาย/โอนเงิน') {
+        entityInput.value = 'ยืนยันสั่งซื้อสินค้าเพจ Gadget Pro';
+      } else if (presetName === 'เปิดบัญชี/ธุรกรรม') {
+        entityInput.value = 'ธนาคารกรุงไทย สาขาสยาม';
+      }
+
+      updateWatermarkText();
+      showToast(`เลือกแม่แบบ: ${presetName}`, 'sparkles');
+    }
+
+    function clearTargetEntity() {
+      document.getElementById('targetEntity').value = '';
+      updateWatermarkText();
+    }
+
+    function getFormattedThaiDate() {
+      const now = new Date();
+      const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const d = now.getDate();
+      const m = thaiMonths[now.getMonth()];
+      const y = now.getFullYear() + 543;
+      return `${d} ${m} ${y}`;
+    }
+
+    function updateWatermarkText() {
+      const entity = document.getElementById('targetEntity').value.trim() || 'หน่วยงานปลายทาง';
+      const dateStr = getFormattedThaiDate();
+      let text = "";
+
+      if (currentPreset === 'สมัครงาน') {
+        text = `ใช้สำหรับสมัครงานกับ ${entity} เท่านั้น\n(ลงวันที่ ${dateStr})`;
+      } else if (currentPreset === 'เช่าห้อง/คอนโด') {
+        text = `ใช้สำหรับทำสัญญาเช่าพักกับ ${entity} เท่านั้น\n(ลงวันที่ ${dateStr})`;
+      } else if (currentPreset === 'ติดต่อราชการ') {
+        text = `ใช้สำหรับติดต่อราชการ ณ ${entity} เท่านั้น\n(ลงวันที่ ${dateStr})`;
+      } else if (currentPreset === 'ซื้อขาย/โอนเงิน') {
+        text = `ใช้สำหรับยืนยันการซื้อขายกับ ${entity} เท่านั้น ห้ามนำไปใช้อื่น\n(ลงวันที่ ${dateStr})`;
+      } else if (currentPreset === 'เปิดบัญชี/ธุรกรรม') {
+        text = `ใช้สำหรับทำธุรกรรมกับ ${entity} เท่านั้น ห้ามนำไปเปิดบัญชีออนไลน์\n(ลงวันที่ ${dateStr})`;
+      } else {
+        text = `ใช้สำหรับ ${entity} เท่านั้น (ลงวันที่ ${dateStr})`;
+      }
+
+      document.getElementById('watermarkPreviewInput').value = text;
+      redrawCanvas();
+    }
+
+    function updateOpacityLabel(val) {
+      document.getElementById('opacityLabel').innerText = `${val}%`;
+    }
+
+    function resetOverlayPosition() {
+      watermarkOffset = { x: 0, y: 0 };
+      redrawCanvas();
+      showToast('รีเซ็ตตำแหน่งลายน้ำกึ่งกลางแล้ว', 'rotate-ccw');
+    }
+
+    // Generate a realistic mock Thai ID Card on Canvas without requiring external image assets
+    function loadSampleCard() {
+      showScanningSimulation(() => {
+        const sampleCanvas = document.createElement('canvas');
+        sampleCanvas.width = 1050;
+        sampleCanvas.height = 660;
+        const sCtx = sampleCanvas.getContext('2d');
+
+        // Card base gradient (Thai ID Card cyan-white tone)
+        const bgGrad = sCtx.createLinearGradient(0, 0, sampleCanvas.width, sampleCanvas.height);
+        bgGrad.addColorStop(0, '#e0f2fe');
+        bgGrad.addColorStop(0.4, '#f0f9ff');
+        bgGrad.addColorStop(1, '#dbeafe');
+        sCtx.fillStyle = bgGrad;
+        sCtx.roundRect(0, 0, sampleCanvas.width, sampleCanvas.height, 36);
+        sCtx.fill();
+
+        // Border
+        sCtx.lineWidth = 4;
+        sCtx.strokeStyle = '#94a3b8';
+        sCtx.stroke();
+
+        // Header pattern
+        sCtx.fillStyle = '#0369a1';
+        sCtx.font = 'bold 26px "Prompt", sans-serif';
+        sCtx.fillText('บัตรประจำตัวประชาชน Thai National ID Card', 240, 56);
+
+        // Garuda mock silhouette
+        sCtx.fillStyle = '#b91c1c';
+        sCtx.font = 'bold 36px serif';
+        sCtx.fillText('🦅', 160, 60);
+
+        // Smart Card Chip
+        sCtx.fillStyle = '#fbbf24';
+        sCtx.roundRect(80, 160, 140, 105, 12);
+        sCtx.fill();
+        sCtx.strokeStyle = '#d97706';
+        sCtx.lineWidth = 2;
+        sCtx.stroke();
+        sCtx.fillStyle = '#b45309';
+        sCtx.fillRect(145, 160, 8, 105);
+        sCtx.fillRect(80, 210, 140, 6);
+
+        // Mock Identification Number
+        sCtx.fillStyle = '#0f172a';
+        sCtx.font = 'bold 30px "Inter", monospace';
+        sCtx.fillText('1 1004 09876 54 3', 280, 128);
+
+        // Thai Name
+        sCtx.font = '20px "Prompt", sans-serif';
+        sCtx.fillStyle = '#475569';
+        sCtx.fillText('ชื่อตัวและชื่อสกุล', 280, 175);
+        sCtx.font = 'bold 26px "Prompt", sans-serif';
+        sCtx.fillStyle = '#0f172a';
+        sCtx.fillText('นาย สมมุติ เพื่อการสาธิต', 280, 208);
+
+        // English Name
+        sCtx.font = '18px "Inter", sans-serif';
+        sCtx.fillStyle = '#475569';
+        sCtx.fillText('Name: Mr. Sommut Demonstration', 280, 245);
+
+        // Birth date
+        sCtx.font = '19px "Prompt", sans-serif';
+        sCtx.fillText('เกิดวันที่ 1 ม.ค. 2538    (Born 1 Jan 1995)', 280, 290);
+
+        // Address
+        sCtx.font = '19px "Prompt", sans-serif';
+        sCtx.fillText('ที่อยู่: 99/9 หมู่ 2 แขวงจตุจักร เขตจตุจักร กรุงเทพฯ', 280, 340);
+
+        // Religion & Blood (Sensitive data to be masked)
+        sCtx.font = 'bold 20px "Prompt", sans-serif';
+        sCtx.fillStyle = '#1e293b';
+        sCtx.fillText('ศาสนา: พุทธ', 720, 480);
+        sCtx.fillText('หมู่โลหิต: O', 860, 480);
+
+        // Mock Photo Box
+        sCtx.fillStyle = '#cbd5e1';
+        sCtx.roundRect(740, 140, 230, 280, 16);
+        sCtx.fill();
+        sCtx.strokeStyle = '#94a3b8';
+        sCtx.stroke();
+        sCtx.fillStyle = '#64748b';
+        sCtx.font = '80px sans-serif';
+        sCtx.textAlign = 'center';
+        sCtx.fillText('👤', 855, 300);
+        sCtx.textAlign = 'left';
+
+        // Barcode block
+        sCtx.fillStyle = '#1e293b';
+        for (let i = 0; i < 48; i++) {
+          const w = (i % 3 === 0) ? 5 : ((i % 2 === 0) ? 3 : 2);
+          sCtx.fillRect(70 + i * 8, 525, w, 75);
+        }
+        sCtx.font = '16px monospace';
+        sCtx.fillText('B104-9874-129481', 110, 620);
+
+        // Issue and Expiry Date
+        sCtx.font = '18px "Prompt", sans-serif';
+        sCtx.fillStyle = '#334155';
+        sCtx.fillText('วันออกบัตร: 15 ม.ค. 2565', 380, 545);
+        sCtx.fillText('วันหมดอายุ: 31 ธ.ค. 2573 (ตลอดชีพ)', 380, 580);
+
+        const img = new Image();
+        img.onload = () => {
+          currentImage = img;
+          redrawCanvas();
+        };
+        img.src = sampleCanvas.toDataURL();
+      });
+    }
+
+    function showScanningSimulation(callback) {
+      const overlay = document.getElementById('scanningOverlay');
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        if (callback) callback();
+      }, 700);
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          currentImage = img;
+          showScanningSimulation(() => {
+            redrawCanvas();
+            showToast('โหลดรูปภาพและวิเคราะห์ตำแหน่งสำเร็จ', 'check');
+          });
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Drag and Drop listeners
+    const dropzone = document.getElementById('dropzone');
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-sky-400', 'bg-sky-950/20');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-sky-400', 'bg-sky-950/20');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-sky-400', 'bg-sky-950/20');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelect({ target: { files: e.dataTransfer.files } });
+      }
+    });
+
+    // The Master Redraw Function
+    function redrawCanvas() {
+      if (!currentImage) return;
+
+      const w = currentImage.width;
+      const h = currentImage.height;
+      canvas.width = w;
+      canvas.height = h;
+
+      document.getElementById('canvasResolutionBadge').innerText = `${w} × ${h} px`;
+
+      // 1. Draw base image
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(currentImage, 0, 0, w, h);
+
+      // 2. Draw AI Masking Boxes (Blackout/Sensor bars)
+      const maskReligion = document.getElementById('maskReligion').checked;
+      const maskBarcode = document.getElementById('maskBarcode').checked;
+
+      ctx.save();
+      if (maskReligion) {
+        drawMaskBox(aiDetections.religion.x * w, aiDetections.religion.y * h, aiDetections.religion.w * w, aiDetections.religion.h * h, "เซนเซอร์ (PDPA)");
+      }
+      if (maskBarcode) {
+        drawMaskBox(aiDetections.barcode.x * w, aiDetections.barcode.y * h, aiDetections.barcode.w * w, aiDetections.barcode.h * h, "บาร์โค้ด / ชิป");
+      }
+      ctx.restore();
+
+      // 3. Draw Watermark & Parallel Diagonal Slash Lines
+      const watermarkText = document.getElementById('watermarkPreviewInput').value;
+      const drawLines = document.getElementById('drawParallelLines').checked;
+      const color = document.getElementById('watermarkColor').value;
+      const opacity = parseInt(document.getElementById('watermarkOpacity').value) / 100;
+
+      ctx.save();
+      ctx.translate(w / 2 + watermarkOffset.x, h / 2 + watermarkOffset.y);
+      ctx.rotate(-18 * Math.PI / 180); // Classic 18 degree angle for Thai ID verification
+
+      ctx.globalAlpha = opacity;
+
+      // Draw two parallel lines
+      if (drawLines) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(3, w * 0.005);
+        ctx.beginPath();
+        // Top line
+        ctx.moveTo(-w * 0.55, -55);
+        ctx.lineTo(w * 0.55, -55);
+        // Bottom line
+        ctx.moveTo(-w * 0.55, 65);
+        ctx.lineTo(w * 0.55, 65);
+        ctx.stroke();
+      }
+
+      // Draw Multi-line Watermark Text
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const fontSize = Math.max(18, Math.round(w * 0.026));
+      ctx.font = `bold ${fontSize}px "Prompt", sans-serif`;
+
+      const lines = watermarkText.split('\n');
+      if (lines.length === 1) {
+        ctx.fillText(lines[0], 0, 5);
+      } else {
+        const lineHeight = fontSize * 1.35;
+        const startY = -(lines.length - 1) * (lineHeight / 2) + 5;
+        lines.forEach((line, index) => {
+          ctx.fillText(line, 0, startY + (index * lineHeight));
+        });
+      }
+
+      ctx.restore();
+    }
+
+    function drawMaskBox(x, y, w, h, label) {
+      // Solid dark redaction box
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 6);
+      ctx.fill();
+
+      // Hatching texture for tamper proofing
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Subtle label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = `bold ${Math.max(11, Math.round(w * 0.06))}px "Prompt", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, x + w / 2, y + h / 2);
+    }
+
+    // Dragging interaction on canvas to reposition the watermark
+    function setupCanvasDragListeners() {
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStart = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+        dragStart = { x: e.clientX, y: e.clientY };
+        
+        // Scale delta by canvas ratio
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        watermarkOffset.x += dx * scaleX;
+        watermarkOffset.y += dy * scaleY;
+        redrawCanvas();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      // Touch events for mobile responsiveness
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          isDragging = true;
+          dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - dragStart.x;
+        const dy = e.touches[0].clientY - dragStart.y;
+        dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        watermarkOffset.x += dx * scaleX;
+        watermarkOffset.y += dy * scaleY;
+        redrawCanvas();
+      });
+
+      window.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+    }
+
+    // Download handlers
+    function downloadMaskedImage(format) {
+      if (!canvas) return;
+
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0, 10);
+      const filename = `SafeID_${currentPreset}_${timestamp}.${format === 'png' ? 'png' : 'jpg'}`;
+
+      link.download = filename;
+      link.href = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg', 0.92);
+      link.click();
+
+      showToast(`ดาวน์โหลดไฟล์ ${filename} เรียบร้อยแล้ว`, 'download');
+    }
+
+    // Toast Notification Utility
+    function showToast(msg, iconName = 'check') {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toastMessage');
+      const iconEl = document.getElementById('toastIcon');
+
+      msgEl.innerText = msg;
+      iconEl.setAttribute('data-lucide', iconName);
+      lucide.createIcons({ root: toast });
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
